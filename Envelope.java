@@ -1,7 +1,7 @@
 import java.io.*;
 import java.net.*;
 import java.util.*;
-￼￼￼￼￼￼￼￼￼
+
 public class Envelope {
 
   // SMTP-sender of the message (in this case, contents of From-header.
