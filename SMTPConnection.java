@@ -30,16 +30,15 @@ public class SMTPConnection {
     /* Read a line from server and check that the reply code is 220.
        If not, throw an IOException */
     String reply = fromServer.readLine();
-    if(parseReply(reply) != 220)
-    {
+    if(parseReply(reply) != 220) {
+      System.out.println("Not 220");
       throw new IOException();
     }
-    System.out.println("Not 220");
 
     /* SMTP handshake. We need the name of the local machine.
        Send the appropriate SMTP handshake command. */
     String localhost = (InetAddress.getLocalHost()).getCanonicalHostName();
-    sendCommand("HELO " + localhost + CRLF, 250);
+    sendCommand("HELO "  + localhost, 250);
     isConnected = true;
   }
 
@@ -48,10 +47,10 @@ public class SMTPConnection {
      caller. */
   public void send(Envelope envelope) throws IOException
   {
-    sendCommand("MAIL FROM: " + envelope.Sender + CRLF, 250);
-    sendCommand("RCPT TO: " + envelope.Recipient + CRLF, 250);
-    sendCommand("DATA" + CRLF, 354);
-    //sendCommand(envelope.Message.toString().concat(CRLF).concat("."),250);
+    sendCommand("MAIL From: " + envelope.Sender, 250);
+    sendCommand("RCPT To: " + envelope.Recipient, 250);
+    sendCommand("DATA", 354);
+    sendCommand(envelope.Message.toString() + CRLF + ".", 250);
   }
 
   /* Close the connection. First, terminate on SMTP level, then
@@ -59,7 +58,7 @@ public class SMTPConnection {
   public void close() {
     isConnected = false;
     try {
-      sendCommand( "QUIT" + CRLF, 221);
+      sendCommand("QUIT", 221);
       connection.close();
     } catch (IOException e) {
       System.out.println("Unable to close connection: " + e);
@@ -73,11 +72,10 @@ public class SMTPConnection {
 
     /* Write command to server and read reply from server. */
     toServer.writeBytes(command + CRLF);
-
     /* Check that the server’s reply code is the same as the
        parameter rc. If not, throw an IOException. */
-    String text = fromServer.readLine();
-    if (parseReply(text) != rc) {
+    String reply = fromServer.readLine();
+    if (parseReply(reply) != rc) {
       System.out.println("Reply codes don't match");
       throw new IOException();
     }
@@ -85,8 +83,7 @@ public class SMTPConnection {
 
   /* Parse the reply line from the server. Returns the reply code. */
   private int parseReply(String reply) {
-    StringTokenizer token = new StringTokenizer(reply," ");
-    String replyLine = token.nextToken();
+    String replyLine = reply.substring(0,3); //take first three digits of string
     int replyCode = Integer.parseInt(replyLine);
     return replyCode;
   }
